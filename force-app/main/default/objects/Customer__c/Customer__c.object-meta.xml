@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Customer</label>
+    <pluralLabel>Customers</pluralLabel>
+    <nameField>
+        <label>Customer Number</label>
+        <type>AutoNumber</type>
+        <displayFormat>CUST-{0000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>
