@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0070D2</headerColor>
+        <logo>Gemini_Generated_Image_mnb4ztmnb4zt</logo>
+        <logoVersion>1</logoVersion>
+        <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
+    </brand>
+    <description>Car rental booking management application</description>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>true</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>true</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>Car Rental Booking App</label>
+    <navType>Standard</navType>
+    <tabs>Car__c</tabs>
+    <tabs>Customer__c</tabs>
+    <tabs>Booking__c</tabs>
+    <tabs>Payment__c</tabs>
+    <tabs>Review__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>Car_Rental_Booking_App_UtilityBar</utilityBar>
+</CustomApplication>

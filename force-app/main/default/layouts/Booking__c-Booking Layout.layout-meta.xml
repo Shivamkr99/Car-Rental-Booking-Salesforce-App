@@ -20,6 +20,16 @@
 
             <layoutItems>
                 <behavior>Required</behavior>
+                <field>Customer__c</field>
+            </layoutItems>
+
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Car__c</field>
+            </layoutItems>
+
+            <layoutItems>
+                <behavior>Required</behavior>
                 <field>Start_Date__c</field>
             </layoutItems>
 
@@ -108,6 +118,8 @@
     <!-- ========================= -->
 
     <miniLayout>
+        <fields>Customer__c</fields>
+        <fields>Car__c</fields>
         <fields>End_Date__c</fields>
         <fields>Pickup_Location__c</fields>
         <fields>Return_Location__c</fields>

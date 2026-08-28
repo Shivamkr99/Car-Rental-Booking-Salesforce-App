@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <description>Record type for long term car rentals.</description>
+    <label>Long Term Rental</label>
+
+    <picklistValues>
+        <picklist>Booking_Type__c</picklist>
+        <values>
+            <fullName>Long Term</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+
+</RecordType>

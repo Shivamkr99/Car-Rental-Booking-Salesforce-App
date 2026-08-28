@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Short_Term_Rental</fullName>
+    <active>true</active>
+    <description>Record type for short term car rentals.</description>
+    <label>Short Term Rental</label>
+
+    <picklistValues>
+        <picklist>Booking_Type__c</picklist>
+        <values>
+            <fullName>Short Term</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+</RecordType>
