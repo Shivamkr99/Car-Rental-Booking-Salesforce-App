@@ -2,7 +2,7 @@
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
 
     <!-- ========================= -->
-    <!-- BOOKING INFORMATION -->
+    <!-- BOOKING INFORMATION       -->
     <!-- ========================= -->
 
     <layoutSections>
@@ -38,9 +38,19 @@
                 <field>End_Date__c</field>
             </layoutItems>
 
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Booking_Type__c</field>
+            </layoutItems>
+
         </layoutColumns>
 
         <layoutColumns>
+
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Status__c</field>
+            </layoutItems>
 
             <layoutItems>
                 <behavior>Required</behavior>
@@ -52,6 +62,16 @@
                 <field>Return_Location__c</field>
             </layoutItems>
 
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Total_Amount__c</field>
+            </layoutItems>
+
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Booking_Notes__c</field>
+            </layoutItems>
+
         </layoutColumns>
 
         <style>TwoColumnsLeftToRight</style>
@@ -59,7 +79,7 @@
 
 
     <!-- ========================= -->
-    <!-- SYSTEM INFORMATION -->
+    <!-- SYSTEM INFORMATION        -->
     <!-- ========================= -->
 
     <layoutSections>
@@ -96,7 +116,7 @@
 
 
     <!-- ========================= -->
-    <!-- CUSTOM LINKS -->
+    <!-- CUSTOM LINKS              -->
     <!-- ========================= -->
 
     <layoutSections>
@@ -114,21 +134,36 @@
 
 
     <!-- ========================= -->
-    <!-- MINI LAYOUT -->
+    <!-- RELATED LISTS             -->
+    <!-- ========================= -->
+
+    <relatedLists>
+        <relatedList>Payment__c.Booking__c</relatedList>
+        <fields>NAME</fields>
+        <fields>Amount__c</fields>
+        <fields>Payment_Method__c</fields>
+        <fields>Payment_Status__c</fields>
+        <fields>Payment_Date__c</fields>
+        <fields>Transaction_Reference__c</fields>
+    </relatedLists>
+
+
+    <!-- ========================= -->
+    <!-- MINI LAYOUT               -->
     <!-- ========================= -->
 
     <miniLayout>
         <fields>Customer__c</fields>
         <fields>Car__c</fields>
-        <fields>End_Date__c</fields>
-        <fields>Pickup_Location__c</fields>
-        <fields>Return_Location__c</fields>
         <fields>Start_Date__c</fields>
+        <fields>End_Date__c</fields>
+        <fields>Status__c</fields>
+        <fields>Total_Amount__c</fields>
     </miniLayout>
 
 
     <!-- ========================= -->
-    <!-- PAGE OPTIONS -->
+    <!-- PAGE OPTIONS              -->
     <!-- ========================= -->
 
     <showEmailCheckbox>false</showEmailCheckbox>

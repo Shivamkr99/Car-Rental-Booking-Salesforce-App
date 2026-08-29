@@ -1,0 +1,150 @@
+/* ========================= */
+/* STATUS PATH CONTAINER     */
+/* ========================= */
+.status-path-container {
+    padding: 1.25rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.path-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ========================= */
+/* PATH TRACK                */
+/* ========================= */
+.path-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 0 0.5rem;
+}
+
+.path-track::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    right: 24px;
+    height: 3px;
+    background: #d8d8d8;
+    border-radius: 2px;
+    z-index: 0;
+}
+
+/* ========================= */
+/* STEP STYLES               */
+/* ========================= */
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+
+.step-marker {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.step-number {
+    line-height: 1;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+/* Completed step */
+.step-completed .step-marker {
+    background: #2e844a;
+    color: white;
+}
+
+.step-completed .step-label {
+    color: #2e844a;
+}
+
+/* Current step */
+.step-current .step-marker {
+    background: #0176d3;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(1, 118, 211, 0.2);
+    animation: pulse 2s infinite;
+}
+
+.step-current .step-label {
+    color: #0176d3;
+    font-weight: 700;
+}
+
+/* Upcoming step */
+.step-upcoming .step-marker {
+    background: #e5e5e5;
+    color: #706e6b;
+}
+
+.step-upcoming .step-label {
+    color: #aeaeae;
+}
+
+/* Cancelled state */
+.step-cancelled .step-marker {
+    background: #e5e5e5;
+    color: #aeaeae;
+}
+
+.step-cancelled .step-label {
+    color: #aeaeae;
+}
+
+/* ========================= */
+/* CANCELLED BANNER          */
+/* ========================= */
+.cancelled-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+    color: #dc2626;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ========================= */
+/* PULSE ANIMATION           */
+/* ========================= */
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(1, 118, 211, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(1, 118, 211, 0.1);
+    }
+}

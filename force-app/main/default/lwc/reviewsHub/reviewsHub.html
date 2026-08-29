@@ -1,0 +1,220 @@
+<template>
+    <div class="rev-container">
+        <!-- ========================= -->
+        <!-- HEADER & HERO BANNER      -->
+        <!-- ========================= -->
+        <div class="rev-header">
+            <div class="header-left">
+                <div class="header-badge">Fleet Reputation & Feedback</div>
+                <h1 class="header-title">
+                    <lightning-icon icon-name="standard:feedback" size="medium" class="title-icon"></lightning-icon>
+                    Customer Reviews & Ratings Hub
+                </h1>
+                <p class="header-subtitle">Monitor customer satisfaction, vehicle feedback, and fleet rating scores.</p>
+            </div>
+            <div class="header-actions">
+                <lightning-button
+                    label="Add Customer Review"
+                    variant="brand"
+                    icon-name="utility:edit"
+                    onclick={handleOpenNewReviewModal}
+                    class="btn-action">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- RATING SUMMARY & BARS     -->
+        <!-- ========================= -->
+        <div class="rating-overview-card">
+            <!-- Overall Score Block -->
+            <div class="overall-score-block">
+                <span class="score-large">{summary.averageRating}</span>
+                <div class="stars-row">
+                    <span class="star-active">★</span>
+                    <span class="star-active">★</span>
+                    <span class="star-active">★</span>
+                    <span class="star-active">★</span>
+                    <span class="star-active">★</span>
+                </div>
+                <p class="total-reviews-lbl">Based on {summary.totalReviews} customer reviews</p>
+            </div>
+
+            <!-- Star Breakdown Bars -->
+            <div class="star-bars-block">
+                <div class="bar-row">
+                    <span class="bar-lbl">5 Stars</span>
+                    <div class="progress-track">
+                        <div class="progress-fill" style={fiveStarStyle}></div>
+                    </div>
+                    <span class="bar-pct">{summary.fiveStarCount} ({summary.fiveStarPercent}%)</span>
+                </div>
+                <div class="bar-row">
+                    <span class="bar-lbl">4 Stars</span>
+                    <div class="progress-track">
+                        <div class="progress-fill" style={fourStarStyle}></div>
+                    </div>
+                    <span class="bar-pct">{summary.fourStarCount} ({summary.fourStarPercent}%)</span>
+                </div>
+                <div class="bar-row">
+                    <span class="bar-lbl">3 Stars</span>
+                    <div class="progress-track">
+                        <div class="progress-fill" style={threeStarStyle}></div>
+                    </div>
+                    <span class="bar-pct">{summary.threeStarCount} ({summary.threeStarPercent}%)</span>
+                </div>
+                <div class="bar-row">
+                    <span class="bar-lbl">2 Stars</span>
+                    <div class="progress-track">
+                        <div class="progress-fill" style={twoStarStyle}></div>
+                    </div>
+                    <span class="bar-pct">{summary.twoStarCount} ({summary.twoStarPercent}%)</span>
+                </div>
+                <div class="bar-row">
+                    <span class="bar-lbl">1 Star</span>
+                    <div class="progress-track">
+                        <div class="progress-fill" style={oneStarStyle}></div>
+                    </div>
+                    <span class="bar-pct">{summary.oneStarCount} ({summary.oneStarPercent}%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- FILTER BAR                -->
+        <!-- ========================= -->
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="search-box">
+                    <lightning-input
+                        type="search"
+                        placeholder="Search reviews, customer names, or vehicles..."
+                        value={searchKey}
+                        onchange={handleSearchChange}
+                        variant="label-hidden">
+                    </lightning-input>
+                </div>
+                <div class="filter-dropdown">
+                    <lightning-combobox
+                        name="ratingFilter"
+                        value={ratingFilter}
+                        placeholder="Rating Filter"
+                        options={ratingFilterOptions}
+                        onchange={handleRatingFilterChange}
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div>
+                <div class="filter-btn-box">
+                    <lightning-button
+                        label="Reset"
+                        variant="neutral"
+                        icon-name="utility:refresh"
+                        onclick={handleResetFilters}>
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- REVIEWS CARDS GRID        -->
+        <!-- ========================= -->
+        <template if:true={isLoading}>
+            <div class="loading-box">
+                <lightning-spinner alternative-text="Loading reviews..." size="large"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={hasReviews}>
+                <div class="reviews-grid">
+                    <template for:each={reviewsList} for:item="r">
+                        <div key={r.id} class="review-card">
+                            <!-- Review Header -->
+                            <div class="review-top-bar">
+                                <div class="reviewer-meta">
+                                    <div class="reviewer-avatar">
+                                        <span>{r.customerInitials}</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="reviewer-name">{r.customerName}</h4>
+                                        <span class="verified-tag">✓ Verified Renter</span>
+                                    </div>
+                                </div>
+                                <div class="review-date-box">
+                                    <span>{r.reviewDate}</span>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Mention -->
+                            <div class="review-vehicle-box">
+                                <img src={r.displayImageUrl} alt={r.carName} class="review-car-thumb" onerror={handleImageError} />
+                                <strong>{r.carName}</strong>
+                                <span class="car-type-lbl">({r.carType})</span>
+                            </div>
+
+                            <!-- Star Rating -->
+                            <div class="star-rating-display">
+                                <span class="star-icons-text">{r.starDisplay}</span>
+                                <span class="star-number">({r.numericRating}.0 / 5)</span>
+                            </div>
+
+                            <!-- Feedback Comment -->
+                            <div class="review-comment-box">
+                                <p>"{r.comment}"</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:false={hasReviews}>
+                <div class="empty-state-box">
+                    <lightning-icon icon-name="utility:feedback" size="large" class="empty-icon"></lightning-icon>
+                    <h3>No Reviews Found</h3>
+                    <p>Be the first to record a customer feedback review!</p>
+                </div>
+            </template>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: WRITE CUSTOMER REVIEW                   -->
+        <!-- ============================================== -->
+        <template if:true={isNewReviewModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseNewReviewModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Write Customer Review</h2>
+                        <p class="modal-sub">Submit feedback on vehicle condition and rental experience</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Select Vehicle" value={newRevCarId} options={carOptions} onchange={handleNewRevCarChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Select Customer" value={newRevCustId} options={customerOptions} onchange={handleNewRevCustChange}></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Star Rating (1 to 5)" value={newRevRating} options={ratingOptions} onchange={handleNewRevRatingChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="date" label="Review Date" value={newRevDate} onchange={handleNewRevDateChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-textarea label="Customer Feedback / Comment" value={newRevComment} onchange={handleNewRevCommentChange} placeholder="Describe the customer's driving and rental experience..."></lightning-textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseNewReviewModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Submit Review" variant="brand" icon-name="utility:check" onclick={handleSubmitNewReview}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>

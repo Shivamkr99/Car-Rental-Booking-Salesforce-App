@@ -1,0 +1,474 @@
+<template>
+    <div class="fleet-container">
+        <!-- ========================= -->
+        <!-- HEADER & HERO BANNER      -->
+        <!-- ========================= -->
+        <div class="fleet-header">
+            <div class="header-left">
+                <div class="header-badge">Fleet Management</div>
+                <h1 class="header-title">
+                    <lightning-icon icon-name="standard:vehicle" size="medium" class="title-icon"></lightning-icon>
+                    Vehicle Showroom & Fleet Center
+                </h1>
+                <p class="header-subtitle">Explore available vehicles, manage fleet availability, and book instantly for customers.</p>
+            </div>
+            <div class="header-actions">
+                <lightning-button
+                    label="Add New Vehicle"
+                    variant="brand"
+                    icon-name="utility:add"
+                    onclick={handleOpenAddCarModal}
+                    class="btn-action">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- KPI METRICS ROW           -->
+        <!-- ========================= -->
+        <div class="metrics-grid">
+            <div class="metric-card metric-total">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:dashboard_ea" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{totalCarsCount}</span>
+                    <span class="metric-lbl">Total Fleet</span>
+                </div>
+            </div>
+            <div class="metric-card metric-available">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:task2" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{availableCarsCount}</span>
+                    <span class="metric-lbl">Available Now</span>
+                </div>
+            </div>
+            <div class="metric-card metric-booked">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:event" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{bookedCarsCount}</span>
+                    <span class="metric-lbl">Currently Rented</span>
+                </div>
+            </div>
+            <div class="metric-card metric-rate">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:currency" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{avgDailyRate}</span>
+                    <span class="metric-lbl">Avg. Daily Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- FILTER BAR                -->
+        <!-- ========================= -->
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="search-box">
+                    <lightning-input
+                        type="search"
+                        placeholder="Search by brand, model, registration or location..."
+                        value={searchKey}
+                        onchange={handleSearchChange}
+                        variant="label-hidden">
+                    </lightning-input>
+                </div>
+                <div class="filter-dropdown">
+                    <lightning-combobox
+                        name="brand"
+                        value={selectedBrand}
+                        placeholder="All Brands"
+                        options={brandOptions}
+                        onchange={handleBrandChange}
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div>
+                <div class="filter-dropdown">
+                    <lightning-combobox
+                        name="carType"
+                        value={selectedCarType}
+                        placeholder="All Types"
+                        options={carTypeOptions}
+                        onchange={handleCarTypeChange}
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div>
+                <div class="filter-dropdown">
+                    <lightning-combobox
+                        name="status"
+                        value={selectedStatus}
+                        placeholder="All Statuses"
+                        options={statusOptions}
+                        onchange={handleStatusChange}
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div>
+                <div class="filter-btn-box">
+                    <lightning-button
+                        label="Reset"
+                        variant="neutral"
+                        icon-name="utility:refresh"
+                        onclick={handleResetFilters}>
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- VEHICLE CARDS GRID        -->
+        <!-- ========================= -->
+        <template if:true={isLoading}>
+            <div class="loading-box">
+                <lightning-spinner alternative-text="Loading fleet..." size="large"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={hasCars}>
+                <div class="cars-grid">
+                    <template for:each={fleetCars} for:item="car">
+                        <div key={car.id} class="car-card">
+                            <!-- Card Image Banner -->
+                            <div class="card-media">
+                                <img src={car.displayImageUrl} alt={car.displayName} class="car-img" onerror={handleImageError} />
+                                <span class={car.statusBadgeClass}>{car.status}</span>
+                                <span class="car-type-pill">{car.carType}</span>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="car-header-row">
+                                    <div>
+                                        <p class="car-brand">{car.brand}</p>
+                                        <h3 class="car-title">{car.carModel}</h3>
+                                    </div>
+                                    <div class="car-rating-tag">
+                                        <lightning-icon icon-name="utility:favorite" size="xx-small" class="star-icon"></lightning-icon>
+                                        <span>{car.rating}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Feature Pills -->
+                                <div class="features-grid">
+                                    <div class="feature-item" title="Transmission">
+                                        <lightning-icon icon-name="utility:settings" size="xx-small"></lightning-icon>
+                                        <span>{car.transmission}</span>
+                                    </div>
+                                    <div class="feature-item" title="Fuel Type">
+                                        <lightning-icon icon-name="utility:filter" size="xx-small"></lightning-icon>
+                                        <span>{car.fuelType}</span>
+                                    </div>
+                                    <div class="feature-item" title="Seats">
+                                        <lightning-icon icon-name="utility:groups" size="xx-small"></lightning-icon>
+                                        <span>{car.seats} Seats</span>
+                                    </div>
+                                    <div class="feature-item" title="Location">
+                                        <lightning-icon icon-name="utility:location" size="xx-small"></lightning-icon>
+                                        <span>{car.location}</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-divider"></div>
+
+                                <!-- Pricing & Action Row -->
+                                <div class="card-footer-row">
+                                    <div class="price-container">
+                                        <span class="price-amount">{car.formattedRate}</span>
+                                        <span class="price-cycle">/day</span>
+                                    </div>
+                                    <div class="card-actions">
+                                        <lightning-button
+                                            label="Details"
+                                            variant="neutral"
+                                            size="small"
+                                            data-id={car.id}
+                                            onclick={handleOpenDetailsModal}
+                                            class="btn-detail">
+                                        </lightning-button>
+                                        <template if:true={car.isAvailable}>
+                                            <lightning-button
+                                                label="Book Now"
+                                                variant="brand"
+                                                size="small"
+                                                icon-name="utility:forward"
+                                                data-id={car.id}
+                                                onclick={handleOpenBookingModal}
+                                                class="btn-book">
+                                            </lightning-button>
+                                        </template>
+                                        <template if:false={car.isAvailable}>
+                                            <lightning-button
+                                                label="Rented"
+                                                variant="neutral"
+                                                disabled
+                                                size="small"
+                                                class="btn-disabled">
+                                            </lightning-button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:false={hasCars}>
+                <div class="empty-state-box">
+                    <lightning-icon icon-name="utility:warning" size="large" class="empty-icon"></lightning-icon>
+                    <h3>No Vehicles Found</h3>
+                    <p>Try clearing your search terms or filters to browse the full fleet.</p>
+                    <lightning-button label="Clear Filters" variant="brand" onclick={handleResetFilters}></lightning-button>
+                </div>
+            </template>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: 1-CLICK INSTANT BOOKING WORKFLOW       -->
+        <!-- ============================================== -->
+        <template if:true={isBookingModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <!-- Modal Header -->
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseBookingModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Book Vehicle: {selectedCarForBooking.displayName}</h2>
+                        <p class="modal-sub">Create rental reservation on behalf of a customer</p>
+                    </header>
+
+                    <!-- Modal Body -->
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <!-- Vehicle Summary Banner -->
+                        <div class="selected-car-banner">
+                            <img src={selectedCarForBooking.displayImageUrl} alt={selectedCarForBooking.displayName} class="banner-car-img" onerror={handleImageError} />
+                            <div class="banner-car-info">
+                                <h4>{selectedCarForBooking.displayName} ({selectedCarForBooking.carType})</h4>
+                                <p class="banner-specs">{selectedCarForBooking.transmission} • {selectedCarForBooking.fuelType} • {selectedCarForBooking.seats} Seats • {selectedCarForBooking.location}</p>
+                                <p class="banner-rate">Rate: <strong>{selectedCarForBooking.formattedRate}</strong> / day</p>
+                            </div>
+                        </div>
+
+                        <!-- Customer Selection Section -->
+                        <div class="booking-section-box">
+                            <div class="section-toggle-header">
+                                <h3 class="section-title">1. Customer Information</h3>
+                                <lightning-button
+                                    label={customerToggleLabel}
+                                    variant="base"
+                                    onclick={handleToggleNewCustomer}>
+                                </lightning-button>
+                            </div>
+
+                            <template if:false={isCreatingNewCustomer}>
+                                <lightning-combobox
+                                    name="customerSelect"
+                                    label="Select Customer"
+                                    value={bookingCustomerId}
+                                    placeholder="Choose existing customer..."
+                                    options={customerOptions}
+                                    onchange={handleBookingCustomerChange}
+                                    required>
+                                </lightning-combobox>
+                            </template>
+
+                            <template if:true={isCreatingNewCustomer}>
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="First Name" value={newCustFirstName} onchange={handleNewCustFirstChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Last Name" value={newCustLastName} onchange={handleNewCustLastChange} required></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input type="email" label="Email" value={newCustEmail} onchange={handleNewCustEmailChange} required></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input type="tel" label="Phone" value={newCustPhone} onchange={handleNewCustPhoneChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1">
+                                        <lightning-input label="Driving License Number" value={newCustLicense} onchange={handleNewCustLicenseChange} required></lightning-input>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Rental Dates & Location Section -->
+                        <div class="booking-section-box">
+                            <h3 class="section-title">2. Rental Schedule & Locations</h3>
+                            <div class="slds-grid slds-gutters slds-wrap">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="date" label="Pickup Date" value={bookingStartDate} onchange={handleBookingStartChange} required></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="date" label="Return Date" value={bookingEndDate} onchange={handleBookingEndChange} required></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input label="Pickup Location" value={bookingPickupLocation} onchange={handleBookingPickupChange}></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input label="Return Location" value={bookingReturnLocation} onchange={handleBookingReturnChange}></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1">
+                                    <lightning-textarea label="Special Notes / Instructions" value={bookingNotes} onchange={handleBookingNotesChange}></lightning-textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price Calculation & Payment Section -->
+                        <div class="booking-section-box payment-box-highlight">
+                            <div class="price-calc-row">
+                                <div>
+                                    <span class="calc-label">Total Duration:</span>
+                                    <strong class="calc-val">{calculatedDurationDays} Days</strong>
+                                </div>
+                                <div>
+                                    <span class="calc-label">Total Rental Amount:</span>
+                                    <strong class="calc-total-val">{formattedCalculatedTotal}</strong>
+                                </div>
+                            </div>
+
+                            <div class="slds-m-top_small slds-grid slds-gutters slds-grid_vertical-align-center">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="checkbox" label="Collect Payment Immediately" checked={bookingIsPaid} onchange={handleBookingIsPaidChange}></lightning-input>
+                                </div>
+                                <template if:true={bookingIsPaid}>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox
+                                            name="paymentMethod"
+                                            label="Payment Method"
+                                            value={bookingPaymentMethod}
+                                            options={paymentMethodOptions}
+                                            onchange={handleBookingPaymentMethodChange}>
+                                        </lightning-combobox>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseBookingModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Confirm & Create Booking" variant="brand" icon-name="utility:check" onclick={handleSubmitBooking} disabled={isSubmittingBooking}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: CAR SPECS & DETAILS                    -->
+        <!-- ============================================== -->
+        <template if:true={isDetailsModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseDetailsModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">{selectedCarDetails.displayName}</h2>
+                        <p class="modal-sub">Registration: {selectedCarDetails.registrationNumber}</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <div class="details-grid-layout">
+                            <img src={selectedCarDetails.displayImageUrl} alt={selectedCarDetails.displayName} class="details-full-img" onerror={handleImageError} />
+                            <div class="details-specs-table">
+                                <div class="spec-row"><span>Brand:</span><strong>{selectedCarDetails.brand}</strong></div>
+                                <div class="spec-row"><span>Model:</span><strong>{selectedCarDetails.carModel}</strong></div>
+                                <div class="spec-row"><span>Category:</span><strong>{selectedCarDetails.carType}</strong></div>
+                                <div class="spec-row"><span>Daily Rate:</span><strong class="text-brand">{selectedCarDetails.formattedRate} / day</strong></div>
+                                <div class="spec-row"><span>Status:</span><span class={selectedCarDetails.statusBadgeClass}>{selectedCarDetails.status}</span></div>
+                                <div class="spec-row"><span>Transmission:</span><strong>{selectedCarDetails.transmission}</strong></div>
+                                <div class="spec-row"><span>Fuel Type:</span><strong>{selectedCarDetails.fuelType}</strong></div>
+                                <div class="spec-row"><span>Seating:</span><strong>{selectedCarDetails.seats} Passengers</strong></div>
+                                <div class="spec-row"><span>Current Hub:</span><strong>{selectedCarDetails.location}</strong></div>
+                                <div class="spec-row"><span>Lifetime Bookings:</span><strong>{selectedCarDetails.totalBookings}</strong></div>
+                                <div class="spec-row"><span>Rating:</span><strong>⭐ {selectedCarDetails.rating} / 5.0</strong></div>
+                            </div>
+                        </div>
+                        <template if:true={selectedCarDetails.description}>
+                            <div class="details-desc-box">
+                                <h5>Vehicle Description:</h5>
+                                <p>{selectedCarDetails.description}</p>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Close" variant="neutral" onclick={handleCloseDetailsModal}></lightning-button>
+                        <template if:true={selectedCarDetails.isAvailable}>
+                            <lightning-button label="Book This Car" variant="brand" icon-name="utility:forward" onclick={handleOpenBookingFromDetails} class="slds-m-left_small"></lightning-button>
+                        </template>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: ADD / EDIT VEHICLE                     -->
+        <!-- ============================================== -->
+        <template if:true={isAddCarModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseAddCarModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Add Vehicle to Fleet</h2>
+                        <p class="modal-sub">Add a new car with rate, specs, and image URL</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="Brand (e.g. Toyota, BMW)" value={newCarBrand} onchange={handleNewCarBrandChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="Model (e.g. Fortuner, 3 Series)" value={newCarModel} onchange={handleNewCarModelChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-combobox label="Type" value={newCarType} options={carTypeOptionsOnly} onchange={handleNewCarTypeChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="Daily Rate (₹)" value={newCarRate} onchange={handleNewCarRateChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input label="Registration Number" value={newCarReg} onchange={handleNewCarRegChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-combobox label="Transmission" value={newCarTransmission} options={transmissionOptions} onchange={handleNewCarTransChange}></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-combobox label="Fuel Type" value={newCarFuel} options={fuelOptions} onchange={handleNewCarFuelChange}></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="Seats" value={newCarSeats} onchange={handleNewCarSeatsChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input label="Location / Hub" value={newCarLocation} onchange={handleNewCarLocationChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input label="Car Image URL (HD Photo)" value={newCarImageUrl} onchange={handleNewCarImageChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-textarea label="Description" value={newCarDesc} onchange={handleNewCarDescChange}></lightning-textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseAddCarModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Save to Fleet" variant="brand" icon-name="utility:save" onclick={handleSubmitAddCar}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>

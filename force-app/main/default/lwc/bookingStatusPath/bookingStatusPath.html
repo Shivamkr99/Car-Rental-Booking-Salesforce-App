@@ -1,0 +1,28 @@
+<template>
+    <div class="status-path-container">
+        <h3 class="path-title">Booking Status</h3>
+        <div class="path-track">
+            <template for:each={statusSteps} for:item="step">
+                <div key={step.value} class={step.stepClass}>
+                    <div class="step-marker">
+                        <template if:true={step.isCompleted}>
+                            <lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon>
+                        </template>
+                        <template if:false={step.isCompleted}>
+                            <span class="step-number">{step.index}</span>
+                        </template>
+                    </div>
+                    <span class="step-label">{step.label}</span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Cancelled Banner -->
+        <template if:true={isCancelled}>
+            <div class="cancelled-banner">
+                <lightning-icon icon-name="utility:ban" size="x-small" variant="error"></lightning-icon>
+                <span>This booking has been cancelled</span>
+            </div>
+        </template>
+    </div>
+</template>

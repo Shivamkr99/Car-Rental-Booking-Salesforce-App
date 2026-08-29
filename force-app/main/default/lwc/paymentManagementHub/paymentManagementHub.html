@@ -1,0 +1,219 @@
+<template>
+    <div class="pay-container">
+        <!-- ========================= -->
+        <!-- HEADER & HERO BANNER      -->
+        <!-- ========================= -->
+        <div class="pay-header">
+            <div class="header-left">
+                <div class="header-badge">Financial Operations</div>
+                <h1 class="header-title">
+                    <lightning-icon icon-name="standard:currency" size="medium" class="title-icon"></lightning-icon>
+                    Payments & Revenue Center
+                </h1>
+                <p class="header-subtitle">Track collections, monitor pending payments, and review financial transaction ledgers.</p>
+            </div>
+            <div class="header-actions">
+                <lightning-button
+                    label="Record Transaction"
+                    variant="brand"
+                    icon-name="utility:money"
+                    onclick={handleOpenNewPayModal}
+                    class="btn-action">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- FINANCIAL KPI METRICS     -->
+        <!-- ========================= -->
+        <div class="metrics-grid">
+            <div class="metric-card metric-total">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:currency" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedTotalRevenue}</span>
+                    <span class="metric-lbl">Total Collections ({kpis.paidCount})</span>
+                </div>
+            </div>
+            <div class="metric-card metric-month">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:report" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedMonthRevenue}</span>
+                    <span class="metric-lbl">This Month Inflow</span>
+                </div>
+            </div>
+            <div class="metric-card metric-pending">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="utility:clock" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedPendingRevenue}</span>
+                    <span class="metric-lbl">Pending Dues ({kpis.pendingCount})</span>
+                </div>
+            </div>
+            <div class="metric-card metric-refund">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="utility:redo" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedRefundedAmount}</span>
+                    <span class="metric-lbl">Refunded Total ({kpis.refundedCount})</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- FILTER BAR                -->
+        <!-- ========================= -->
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="search-box">
+                    <lightning-input
+                        type="search"
+                        placeholder="Search by Transaction Ref, Booking #, Customer, or Car..."
+                        value={searchKey}
+                        onchange={handleSearchChange}
+                        variant="label-hidden">
+                    </lightning-input>
+                </div>
+                <div class="filter-dropdown">
+                    <lightning-combobox
+                        name="payStatus"
+                        value={statusFilter}
+                        placeholder="Payment Status"
+                        options={statusOptions}
+                        onchange={handleStatusFilterChange}
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div>
+                <div class="filter-btn-box">
+                    <lightning-button
+                        label="Reset"
+                        variant="neutral"
+                        icon-name="utility:refresh"
+                        onclick={handleResetFilters}>
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- PAYMENT TRANSACTIONS TABLE-->
+        <!-- ========================= -->
+        <template if:true={isLoading}>
+            <div class="loading-box">
+                <lightning-spinner alternative-text="Loading payments..." size="large"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={hasPayments}>
+                <div class="table-card">
+                    <div class="table-wrapper">
+                        <table class="payment-table">
+                            <thead>
+                                <tr>
+                                    <th>Txn Reference</th>
+                                    <th>Booking #</th>
+                                    <th>Customer</th>
+                                    <th>Vehicle</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={paymentsList} for:item="p">
+                                    <tr key={p.id}>
+                                        <td class="font-bold text-dark">{p.transactionReference}</td>
+                                        <td class="font-bold text-brand">{p.bookingName}</td>
+                                        <td>{p.customerName}</td>
+                                        <td>{p.carName}</td>
+                                        <td class="font-bold amt-cell">{p.formattedAmount}</td>
+                                        <td>
+                                            <span class="method-tag">{p.paymentMethod}</span>
+                                        </td>
+                                        <td>{p.paymentDate}</td>
+                                        <td>
+                                            <span class={p.statusClass}>{p.paymentStatus}</span>
+                                        </td>
+                                        <td>
+                                            <template if:true={p.isPaid}>
+                                                <lightning-button-icon
+                                                    icon-name="utility:redo"
+                                                    size="small"
+                                                    variant="border-filled"
+                                                    alternative-text="Refund"
+                                                    title="Issue Refund"
+                                                    data-id={p.id}
+                                                    onclick={handleRefundClick}>
+                                                </lightning-button-icon>
+                                            </template>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </template>
+
+            <template if:false={hasPayments}>
+                <div class="empty-state-box">
+                    <lightning-icon icon-name="utility:money" size="large" class="empty-icon"></lightning-icon>
+                    <h3>No Transactions Found</h3>
+                    <p>No payment records match your filters.</p>
+                </div>
+            </template>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: RECORD NEW TRANSACTION                 -->
+        <!-- ============================================== -->
+        <template if:true={isNewPayModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseNewPayModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Record Payment Entry</h2>
+                        <p class="modal-sub">Log a payment transaction against a reservation</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Select Booking" value={newPayBookingId} options={bookingOptions} onchange={handleNewPayBookingChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="number" label="Amount (₹)" value={newPayAmount} onchange={handleNewPayAmountChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Payment Method" value={newPayMethod} options={paymentMethodOptions} onchange={handleNewPayMethodChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Payment Status" value={newPayStatus} options={statusFormOptions} onchange={handleNewPayStatusChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="date" label="Payment Date" value={newPayDate} onchange={handleNewPayDateChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="Transaction Reference" value={newPayRef} onchange={handleNewPayRefChange}></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseNewPayModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Save Transaction" variant="brand" icon-name="utility:save" onclick={handleSubmitNewPay}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>

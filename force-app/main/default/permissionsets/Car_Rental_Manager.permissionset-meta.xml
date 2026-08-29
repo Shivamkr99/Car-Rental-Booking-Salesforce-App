@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Car Rental Manager</label>
+    <description>Full access to all Car Rental Booking App objects and Apex classes for the business owner.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <license>Salesforce</license>
+
+    <!-- ========================= -->
+    <!-- APEX CLASS ACCESS         -->
+    <!-- ========================= -->
+    <classAccesses>
+        <apexClass>BookingManagementController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>BookingService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CarAvailabilityController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CarFleetController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CarRentalDashboardController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CustomerHubController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>FinancialsHubController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>PaymentService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ReviewsHubController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+
+    <!-- ========================= -->
+    <!-- CAR OBJECT PERMISSIONS    -->
+    <!-- ========================= -->
+    <objectPermissions>
+        <object>Car__c</object>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- ========================= -->
+    <!-- CUSTOMER OBJECT           -->
+    <!-- ========================= -->
+    <objectPermissions>
+        <object>Customer__c</object>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- ========================= -->
+    <!-- BOOKING OBJECT            -->
+    <!-- ========================= -->
+    <objectPermissions>
+        <object>Booking__c</object>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- ========================= -->
+    <!-- PAYMENT OBJECT            -->
+    <!-- ========================= -->
+    <objectPermissions>
+        <object>Payment__c</object>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- ========================= -->
+    <!-- REVIEW OBJECT             -->
+    <!-- ========================= -->
+    <objectPermissions>
+        <object>Review__c</object>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- ========================= -->
+    <!-- CAR FIELD PERMISSIONS     -->
+    <!-- ========================= -->
+    <fieldPermissions>
+        <field>Car__c.Active__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Brand__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Car_Image_URL__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Car_Model__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Car_Type__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Daily_Rental_Rate__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Description__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Fuel_Type__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Location__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Purchase_Date__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Rating__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Registration_Number__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Seats__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Status__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Total_Bookings__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Car__c.Transmission__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ========================= -->
+    <!-- CUSTOMER FIELD PERMISSIONS -->
+    <!-- ========================= -->
+    <fieldPermissions>
+        <field>Customer__c.Active__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Customer__c.Date_of_Birth__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Customer__c.First_Name__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ========================= -->
+    <!-- BOOKING FIELD PERMISSIONS -->
+    <!-- ========================= -->
+    <fieldPermissions>
+        <field>Booking__c.Booking_Notes__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Booking__c.Status__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Booking__c.Total_Amount__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ========================= -->
+    <!-- PAYMENT FIELD PERMISSIONS -->
+    <!-- ========================= -->
+    <fieldPermissions>
+        <field>Payment__c.Booking__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Payment__c.Transaction_Reference__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ========================= -->
+    <!-- REVIEW FIELD PERMISSIONS  -->
+    <!-- ========================= -->
+    <fieldPermissions>
+        <field>Review__c.Car__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Review__c.Comment__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Review__c.Customer__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ========================= -->
+    <!-- TAB VISIBILITY            -->
+    <!-- ========================= -->
+    <tabSettings>
+        <tab>Booking__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Bookings_Hub_Page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Car_Rental_Home_Page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Car__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Cars_Fleet_Page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Customer__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Customers_Hub_Page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Payment__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Payments_Hub_Page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Review__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Reviews_Hub_Page</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+</PermissionSet>

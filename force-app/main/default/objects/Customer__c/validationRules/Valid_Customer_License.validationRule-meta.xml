@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valid_Customer_License</fullName>
+    <active>true</active>
+    <description>Ensures the driving license has not expired.</description>
+    <errorConditionFormula>NOT(ISBLANK(License_Expiry_Date__c)) &amp;&amp; License_Expiry_Date__c &lt; TODAY()</errorConditionFormula>
+    <errorDisplayField>License_Expiry_Date__c</errorDisplayField>
+    <errorMessage>Driving License has expired. Please provide a valid license with a future expiry date.</errorMessage>
+</ValidationRule>

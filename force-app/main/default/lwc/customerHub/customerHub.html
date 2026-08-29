@@ -1,0 +1,369 @@
+<template>
+    <div class="cust-container">
+        <!-- ========================= -->
+        <!-- HEADER & HERO BANNER      -->
+        <!-- ========================= -->
+        <div class="cust-header">
+            <div class="header-left">
+                <div class="header-badge">Customer Directory</div>
+                <h1 class="header-title">
+                    <lightning-icon icon-name="standard:people" size="medium" class="title-icon"></lightning-icon>
+                    Customer 360 & Client Hub
+                </h1>
+                <p class="header-subtitle">Manage customer profiles, driver licenses, booking history, and lifetime value.</p>
+            </div>
+            <div class="header-actions">
+                <lightning-button
+                    label="Add New Customer"
+                    variant="brand"
+                    icon-name="utility:add"
+                    onclick={handleOpenAddModal}
+                    class="btn-action">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- KPI METRICS ROW           -->
+        <!-- ========================= -->
+        <div class="metrics-grid">
+            <div class="metric-card metric-total">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:user" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{totalCustomersCount}</span>
+                    <span class="metric-lbl">Total Clients</span>
+                </div>
+            </div>
+            <div class="metric-card metric-active">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:event" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{activeRentersCount}</span>
+                    <span class="metric-lbl">Active Renters</span>
+                </div>
+            </div>
+            <div class="metric-card metric-expiring">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{expiringLicensesCount}</span>
+                    <span class="metric-lbl">Expiring Licenses</span>
+                </div>
+            </div>
+            <div class="metric-card metric-revenue">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:currency" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{totalLifetimeSpent}</span>
+                    <span class="metric-lbl">Total Client Spend</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- FILTER BAR                -->
+        <!-- ========================= -->
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="search-box">
+                    <lightning-input
+                        type="search"
+                        placeholder="Search by customer name, email, phone or license number..."
+                        value={searchKey}
+                        onchange={handleSearchChange}
+                        variant="label-hidden">
+                    </lightning-input>
+                </div>
+                <div class="filter-dropdown">
+                    <lightning-combobox
+                        name="licenseFilter"
+                        value={licenseFilter}
+                        placeholder="License Status"
+                        options={licenseFilterOptions}
+                        onchange={handleLicenseFilterChange}
+                        variant="label-hidden">
+                    </lightning-combobox>
+                </div>
+                <div class="filter-btn-box">
+                    <lightning-button
+                        label="Reset"
+                        variant="neutral"
+                        icon-name="utility:refresh"
+                        onclick={handleResetFilters}>
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- CUSTOMER CARDS GRID       -->
+        <!-- ========================= -->
+        <template if:true={isLoading}>
+            <div class="loading-box">
+                <lightning-spinner alternative-text="Loading customers..." size="large"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={hasCustomers}>
+                <div class="cust-grid">
+                    <template for:each={customersList} for:item="cust">
+                        <div key={cust.id} class="cust-card">
+                            <!-- Card Top Row: Avatar & Name -->
+                            <div class="cust-card-header">
+                                <div class="avatar-box">
+                                    <span>{cust.initials}</span>
+                                </div>
+                                <div class="cust-info">
+                                    <h3 class="cust-name">{cust.fullName}</h3>
+                                    <p class="cust-id">Client #{cust.name}</p>
+                                </div>
+                                <span class={cust.licenseBadgeClass}>
+                                    {cust.licenseStatus}
+                                </span>
+                            </div>
+
+                            <!-- Contact Info -->
+                            <div class="cust-contact-box">
+                                <div class="contact-item" title="Email">
+                                    <lightning-icon icon-name="utility:email" size="xx-small"></lightning-icon>
+                                    <span>{cust.email}</span>
+                                </div>
+                                <div class="contact-item" title="Phone">
+                                    <lightning-icon icon-name="utility:call" size="xx-small"></lightning-icon>
+                                    <span>{cust.phoneDisplay}</span>
+                                </div>
+                                <div class="contact-item" title="Driver License">
+                                    <lightning-icon icon-name="utility:identity" size="xx-small"></lightning-icon>
+                                    <span>Lic: <strong>{cust.licenseNumber}</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- Rental Stats Row -->
+                            <div class="cust-stats-box">
+                                <div class="stat-col">
+                                    <span class="stat-val">{cust.totalBookings}</span>
+                                    <span class="stat-lbl">Bookings</span>
+                                </div>
+                                <div class="stat-col">
+                                    <span class="stat-val">{cust.activeBookings}</span>
+                                    <span class="stat-lbl">Active</span>
+                                </div>
+                                <div class="stat-col">
+                                    <span class="stat-val stat-spend">{cust.formattedSpend}</span>
+                                    <span class="stat-lbl">Total Spent</span>
+                                </div>
+                            </div>
+
+                            <div class="card-divider"></div>
+
+                            <!-- Actions -->
+                            <div class="cust-actions-row">
+                                <lightning-button
+                                    label="Customer 360"
+                                    variant="brand-outline"
+                                    size="small"
+                                    icon-name="utility:preview"
+                                    data-id={cust.id}
+                                    onclick={handleOpenCustomer360}>
+                                </lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:false={hasCustomers}>
+                <div class="empty-state-box">
+                    <lightning-icon icon-name="utility:people" size="large" class="empty-icon"></lightning-icon>
+                    <h3>No Customers Found</h3>
+                    <p>Try clearing your search query or license filter to see all clients.</p>
+                    <lightning-button label="Reset Filters" variant="brand" onclick={handleResetFilters}></lightning-button>
+                </div>
+            </template>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: CUSTOMER 360 PROFILE VIEW              -->
+        <!-- ============================================== -->
+        <template if:true={is360ModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+                <div class="slds-modal__container">
+                    <!-- Modal Header -->
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseCustomer360}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Customer 360: {selected360Customer.fullName}</h2>
+                        <p class="modal-sub">Driver License: {selected360Customer.licenseNumber} • Status: {selected360Customer.licenseStatus}</p>
+                    </header>
+
+                    <!-- Modal Body -->
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <!-- Profile Highlight Card -->
+                        <div class="profile-hero-card">
+                            <div class="avatar-large">
+                                <span>{selected360Customer.initials}</span>
+                            </div>
+                            <div class="profile-meta">
+                                <h3>{selected360Customer.fullName}</h3>
+                                <p class="meta-row">
+                                    <span>📧 {selected360Customer.email}</span> • 
+                                    <span>📞 {selected360Customer.phone}</span> • 
+                                    <span>🆔 {selected360Customer.licenseNumber}</span>
+                                </p>
+                            </div>
+                            <div class="profile-kpis">
+                                <div class="kpi-mini">
+                                    <span>Total Spent</span>
+                                    <strong>{selected360Customer.formattedSpend}</strong>
+                                </div>
+                                <div class="kpi-mini">
+                                    <span>Total Rentals</span>
+                                    <strong>{selected360Customer.totalBookings}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bookings Timeline Section -->
+                        <div class="section-container">
+                            <h4 class="section-heading">
+                                <lightning-icon icon-name="standard:event" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                Rental Bookings History ({customer360Bookings.length})
+                            </h4>
+
+                            <template if:true={has360Bookings}>
+                                <div class="table-wrapper">
+                                    <table class="styled-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Booking #</th>
+                                                <th>Vehicle</th>
+                                                <th>Dates</th>
+                                                <th>Pickup / Return</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={customer360Bookings} for:item="b">
+                                                <tr key={b.Id}>
+                                                    <td class="font-bold text-brand">{b.Name}</td>
+                                                    <td>{b.Car__r.Brand__c} {b.Car__r.Car_Model__c}</td>
+                                                    <td>{b.Start_Date__c} → {b.End_Date__c}</td>
+                                                    <td>{b.Pickup_Location__c}</td>
+                                                    <td class="font-bold">₹{b.Total_Amount__c}</td>
+                                                    <td>
+                                                        <span class="status-pill">{b.Status__c}</span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                            <template if:false={has360Bookings}>
+                                <p class="empty-note">No past or active bookings found for this customer.</p>
+                            </template>
+                        </div>
+
+                        <!-- Payment Transactions Section -->
+                        <div class="section-container">
+                            <h4 class="section-heading">
+                                <lightning-icon icon-name="standard:currency" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                Payment Ledger ({customer360Payments.length})
+                            </h4>
+
+                            <template if:true={has360Payments}>
+                                <div class="table-wrapper">
+                                    <table class="styled-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Txn Reference</th>
+                                                <th>Booking</th>
+                                                <th>Amount</th>
+                                                <th>Method</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={customer360Payments} for:item="p">
+                                                <tr key={p.Id}>
+                                                    <td class="font-bold">{p.Transaction_Reference__c}</td>
+                                                    <td>{p.Booking__r.Name}</td>
+                                                    <td class="font-bold text-green">₹{p.Amount__c}</td>
+                                                    <td>{p.Payment_Method__c}</td>
+                                                    <td>{p.Payment_Date__c}</td>
+                                                    <td><span class="status-pill-green">{p.Payment_Status__c}</span></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                            <template if:false={has360Payments}>
+                                <p class="empty-note">No payment transactions recorded yet.</p>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Close" variant="neutral" onclick={handleCloseCustomer360}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: ADD NEW CUSTOMER                       -->
+        <!-- ============================================== -->
+        <template if:true={isAddModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseAddModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Register New Customer</h2>
+                        <p class="modal-sub">Add customer details and verify driving license</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="First Name" value={newFirstName} onchange={handleNewFirstChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="Last Name" value={newLastName} onchange={handleNewLastChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="email" label="Email Address" value={newEmail} onchange={handleNewEmailChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="tel" label="Phone Number" value={newPhone} onchange={handleNewPhoneChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="Driving License Number" value={newLicense} onchange={handleNewLicenseChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="date" label="License Expiry Date" value={newExpiryDate} onchange={handleNewExpiryChange}></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseAddModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Save Customer" variant="brand" icon-name="utility:save" onclick={handleSubmitNewCustomer}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>

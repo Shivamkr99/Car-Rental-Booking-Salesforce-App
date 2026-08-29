@@ -1,0 +1,215 @@
+<template>
+    <div class="booking-container">
+        <!-- ========================= -->
+        <!-- HEADER & HERO BANNER      -->
+        <!-- ========================= -->
+        <div class="booking-header">
+            <div class="header-left">
+                <div class="header-badge">Operations & Rentals</div>
+                <h1 class="header-title">
+                    <lightning-icon icon-name="standard:event" size="medium" class="title-icon"></lightning-icon>
+                    Bookings & Dispatch Center
+                </h1>
+                <p class="header-subtitle">Manage customer reservations, track live rentals on the road, and record vehicle returns.</p>
+            </div>
+            <div class="header-actions">
+                <lightning-button
+                    label="Refresh Pipeline"
+                    variant="neutral"
+                    icon-name="utility:refresh"
+                    onclick={handleRefresh}
+                    class="btn-action">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- STATUS TABS BAR           -->
+        <!-- ========================= -->
+        <div class="tabs-container">
+            <div class="status-tab-bar">
+                <button class={tabAllClass} data-status="All" onclick={handleTabClick}>
+                    <span>All Bookings</span>
+                    <span class="tab-badge">{counts.allCount}</span>
+                </button>
+                <button class={tabPendingClass} data-status="Pending" onclick={handleTabClick}>
+                    <span>Pending</span>
+                    <span class="tab-badge">{counts.pendingCount}</span>
+                </button>
+                <button class={tabConfirmedClass} data-status="Confirmed" onclick={handleTabClick}>
+                    <span>Confirmed</span>
+                    <span class="tab-badge">{counts.confirmedCount}</span>
+                </button>
+                <button class={tabActiveClass} data-status="Active" onclick={handleTabClick}>
+                    <span>Active / On Road</span>
+                    <span class="tab-badge tab-badge-green">{counts.activeCount}</span>
+                </button>
+                <button class={tabCompletedClass} data-status="Completed" onclick={handleTabClick}>
+                    <span>Completed</span>
+                    <span class="tab-badge">{counts.completedCount}</span>
+                </button>
+                <button class={tabCancelledClass} data-status="Cancelled" onclick={handleTabClick}>
+                    <span>Cancelled</span>
+                    <span class="tab-badge">{counts.cancelledCount}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- SEARCH BAR                -->
+        <!-- ========================= -->
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="search-box">
+                    <lightning-input
+                        type="search"
+                        placeholder="Search by Booking #, Customer, Car, or Location..."
+                        value={searchKey}
+                        onchange={handleSearchChange}
+                        variant="label-hidden">
+                    </lightning-input>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- BOOKINGS CARDS GRID       -->
+        <!-- ========================= -->
+        <template if:true={isLoading}>
+            <div class="loading-box">
+                <lightning-spinner alternative-text="Loading bookings..." size="large"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={hasBookings}>
+                <div class="bookings-grid">
+                    <template for:each={bookingsList} for:item="b">
+                        <div key={b.id} class="booking-card">
+                            <!-- Card Header -->
+                            <div class="card-header-bar">
+                                <div class="booking-id-tag">
+                                    <span class="id-text">{b.name}</span>
+                                    <span class="type-pill">{b.bookingType}</span>
+                                </div>
+                                <span class={b.statusBadgeClass}>{b.status}</span>
+                            </div>
+
+                            <!-- Vehicle & Customer Content -->
+                            <div class="card-content-layout">
+                                <img src={b.displayImageUrl} alt={b.carName} class="card-car-thumbnail" onerror={handleImageError} />
+                                <div class="card-info">
+                                    <h3 class="car-title">{b.carName}</h3>
+                                    <p class="reg-number">Reg: {b.carRegistration}</p>
+                                    <div class="customer-row">
+                                        <lightning-icon icon-name="utility:user" size="xx-small"></lightning-icon>
+                                        <strong class="cust-highlight">{b.customerName}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dates & Route Box -->
+                            <div class="route-box">
+                                <div class="route-row">
+                                    <span class="date-label">📅 Schedule:</span>
+                                    <strong>{b.startDate} → {b.endDate} ({b.durationDays} Days)</strong>
+                                </div>
+                                <div class="route-row">
+                                    <span class="date-label">📍 Route:</span>
+                                    <span>{b.pickupLocation} → {b.returnLocation}</span>
+                                </div>
+                            </div>
+
+                            <!-- Pricing & Payment Bar -->
+                            <div class="payment-summary-bar">
+                                <div>
+                                    <span class="amt-lbl">Total Amount</span>
+                                    <span class="amt-val">₹{b.totalAmount}</span>
+                                </div>
+                                <div class="pay-tag-container">
+                                    <span class={b.payStatusClass}>{b.paymentStatus}</span>
+                                </div>
+                            </div>
+
+                            <div class="card-divider"></div>
+
+                            <!-- Action Buttons Lifecycle -->
+                            <div class="card-actions-bar">
+                                <template if:true={b.isPending}>
+                                    <lightning-button label="Confirm Booking" variant="brand" size="small" icon-name="utility:check" data-id={b.id} data-status="Confirmed" onclick={handleUpdateStatus}></lightning-button>
+                                    <lightning-button label="Cancel" variant="destructive-text" size="small" data-id={b.id} data-status="Cancelled" onclick={handleUpdateStatus}></lightning-button>
+                                </template>
+
+                                <template if:true={b.isConfirmed}>
+                                    <lightning-button label="Handover / Activate" variant="success" size="small" icon-name="utility:forward" data-id={b.id} data-status="Active" onclick={handleUpdateStatus}></lightning-button>
+                                    <template if:true={b.isUnpaid}>
+                                        <lightning-button label="Collect Payment" variant="brand-outline" size="small" icon-name="utility:money" data-id={b.id} data-amount={b.totalAmount} onclick={handleOpenPaymentModal}></lightning-button>
+                                    </template>
+                                    <lightning-button label="Cancel" variant="destructive-text" size="small" data-id={b.id} data-status="Cancelled" onclick={handleUpdateStatus}></lightning-button>
+                                </template>
+
+                                <template if:true={b.isActive}>
+                                    <lightning-button label="Return / Complete" variant="brand" size="small" icon-name="utility:task" data-id={b.id} data-status="Completed" onclick={handleUpdateStatus}></lightning-button>
+                                    <template if:true={b.isUnpaid}>
+                                        <lightning-button label="Collect Payment" variant="brand-outline" size="small" icon-name="utility:money" data-id={b.id} data-amount={b.totalAmount} onclick={handleOpenPaymentModal}></lightning-button>
+                                    </template>
+                                </template>
+
+                                <template if:true={b.isCompleted}>
+                                    <span class="completed-msg">✅ Trip Completed Successfully</span>
+                                </template>
+
+                                <template if:true={b.isCancelled}>
+                                    <span class="cancelled-msg">❌ Reservation Cancelled</span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:false={hasBookings}>
+                <div class="empty-state-box">
+                    <lightning-icon icon-name="utility:event" size="large" class="empty-icon"></lightning-icon>
+                    <h3>No Bookings Found</h3>
+                    <p>No reservations match the selected status tab and search term.</p>
+                </div>
+            </template>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- MODAL: RECORD PAYMENT FOR BOOKING              -->
+        <!-- ============================================== -->
+        <template if:true={isPaymentModalOpen}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header modal-header-custom">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClosePaymentModal}>
+                            <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium font-bold">Collect Payment</h2>
+                        <p class="modal-sub">Record customer payment against reservation</p>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium modal-content-custom">
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input type="number" label="Amount to Collect (₹)" value={payAmount} onchange={handlePayAmountChange} required></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-combobox label="Payment Method" value={payMethod} options={paymentMethodOptions} onchange={handlePayMethodChange} required></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input label="Transaction Reference / Note" value={payRef} onchange={handlePayRefChange}></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleClosePaymentModal} class="slds-m-right_small"></lightning-button>
+                        <lightning-button label="Confirm Payment Received" variant="brand" icon-name="utility:check" onclick={handleSubmitPayment}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>

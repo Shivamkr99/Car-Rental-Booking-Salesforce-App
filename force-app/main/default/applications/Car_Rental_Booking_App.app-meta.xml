@@ -6,20 +6,21 @@
         <logoVersion>1</logoVersion>
         <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
     </brand>
-    <description>Car rental booking management application</description>
+    <description>Enterprise Car Rental Booking and Fleet Operations Management Application</description>
     <formFactors>Small</formFactors>
     <formFactors>Large</formFactors>
     <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
-    <isNavPersonalizationDisabled>true</isNavPersonalizationDisabled>
-    <isNavTabPersistenceDisabled>true</isNavTabPersistenceDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
     <label>Car Rental Booking App</label>
     <navType>Standard</navType>
-    <tabs>Car__c</tabs>
-    <tabs>Customer__c</tabs>
-    <tabs>Booking__c</tabs>
-    <tabs>Payment__c</tabs>
-    <tabs>Review__c</tabs>
+    <tabs>Car_Rental_Home_Page</tabs>
+    <tabs>Cars_Fleet_Page</tabs>
+    <tabs>Bookings_Hub_Page</tabs>
+    <tabs>Customers_Hub_Page</tabs>
+    <tabs>Payments_Hub_Page</tabs>
+    <tabs>Reviews_Hub_Page</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Car_Rental_Booking_App_UtilityBar</utilityBar>
 </CustomApplication>

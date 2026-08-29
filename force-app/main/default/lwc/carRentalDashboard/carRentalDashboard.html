@@ -1,0 +1,198 @@
+<template>
+    <div class="dash-container">
+        <!-- ============================================== -->
+        <!-- EXECUTIVE DASHBOARD HEADER                     -->
+        <!-- ============================================== -->
+        <div class="dash-header">
+            <div class="header-left">
+                <div class="header-badge">Executive Operations Cockpit</div>
+                <h1 class="header-title">
+                    <lightning-icon icon-name="standard:dashboard_ea" size="medium" class="title-icon"></lightning-icon>
+                    Car Rental Business Overview
+                </h1>
+                <p class="header-subtitle">Real-time revenue monitoring, fleet utilization, and booking operations management.</p>
+            </div>
+            <div class="header-actions">
+                <lightning-button
+                    label="New Booking"
+                    variant="brand"
+                    icon-name="utility:add"
+                    onclick={handleNewBooking}
+                    class="btn-primary">
+                </lightning-button>
+                <lightning-button
+                    label="Register Client"
+                    variant="neutral"
+                    icon-name="utility:user"
+                    onclick={handleNewCustomer}
+                    class="btn-secondary">
+                </lightning-button>
+                <lightning-button
+                    label="Add Vehicle"
+                    variant="neutral"
+                    icon-name="utility:vehicle"
+                    onclick={handleNewCar}
+                    class="btn-secondary">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- FINANCIAL & REVENUE METRICS ROW               -->
+        <!-- ============================================== -->
+        <div class="metrics-grid">
+            <!-- Total Revenue -->
+            <div class="metric-card metric-rev">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:currency" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedTotalRevenue}</span>
+                    <span class="metric-lbl">Total Sales / Revenue</span>
+                </div>
+            </div>
+
+            <!-- This Month Revenue -->
+            <div class="metric-card metric-month">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:report" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedMonthlyRevenue}</span>
+                    <span class="metric-lbl">This Month Inflow</span>
+                </div>
+            </div>
+
+            <!-- Pending Receivables -->
+            <div class="metric-card metric-pending-rev">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="utility:clock" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{formattedPendingRevenue}</span>
+                    <span class="metric-lbl">Pending Receivables</span>
+                </div>
+            </div>
+
+            <!-- Fleet Utilization -->
+            <div class="metric-card metric-util">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:performance" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{fleetUtilization}%</span>
+                    <span class="metric-lbl">Fleet Utilization ({bookedCars}/{totalCars} On Road)</span>
+                </div>
+            </div>
+
+            <!-- Available Vehicles -->
+            <div class="metric-card metric-avail">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:task2" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{availableCars} Cars</span>
+                    <span class="metric-lbl">Available in Garage</span>
+                </div>
+            </div>
+
+            <!-- Total Clients -->
+            <div class="metric-card metric-clients">
+                <div class="metric-icon-box">
+                    <lightning-icon icon-name="standard:people" size="small"></lightning-icon>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-val">{totalCustomers}</span>
+                    <span class="metric-lbl">Registered Clients</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TOP PERFORMING VEHICLES SHOWCASE              -->
+        <!-- ============================================== -->
+        <template if:true={hasTopCars}>
+            <div class="section-card">
+                <div class="section-header-bar">
+                    <h2 class="section-title">
+                        <lightning-icon icon-name="standard:insights" size="small" class="section-icon"></lightning-icon>
+                        Top Fleet Vehicles by Demand
+                    </h2>
+                    <span class="section-note">Highest rented models across fleet</span>
+                </div>
+                <div class="top-cars-grid">
+                    <template for:each={topCarsList} for:item="car">
+                        <div key={car.carId} class="top-car-item">
+                            <img src={car.displayImageUrl} alt={car.carName} class="top-car-img" onerror={handleImageError} />
+                            <div class="top-car-info">
+                                <span class="top-car-badge">{car.carType}</span>
+                                <h4 class="top-car-name">{car.carName}</h4>
+                                <p class="top-car-stats">
+                                    <span>🎯 <strong>{car.totalBookings}</strong> Bookings</span>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <!-- ============================================== -->
+        <!-- RECENT BOOKINGS TABLE                          -->
+        <!-- ============================================== -->
+        <div class="section-card">
+            <div class="section-header-bar">
+                <h2 class="section-title">
+                    <lightning-icon icon-name="standard:recent" size="small" class="section-icon"></lightning-icon>
+                    Live Reservations & Recent Bookings
+                </h2>
+                <lightning-button label="View All in Bookings Tab" variant="base" icon-name="utility:forward" onclick={handleViewAllBookings}></lightning-button>
+            </div>
+
+            <template if:true={hasBookings}>
+                <div class="table-wrapper">
+                    <table class="recent-table">
+                        <thead>
+                            <tr>
+                                <th>Booking #</th>
+                                <th>Vehicle</th>
+                                <th>Client Name</th>
+                                <th>Rental Dates</th>
+                                <th>Route / Hub</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={recentBookingsList} for:item="b">
+                                <tr key={b.Id} onclick={handleBookingClick} data-id={b.Id} class="clickable-row">
+                                    <td class="font-bold text-brand">{b.Name}</td>
+                                    <td>
+                                        <div class="table-car-cell">
+                                            <img src={b.displayImageUrl} alt={b.carName} class="table-car-thumb" onerror={handleImageError} />
+                                            <span>{b.carName}</span>
+                                        </div>
+                                    </td>
+                                    <td class="font-bold">{b.customerName}</td>
+                                    <td>{b.dateRange}</td>
+                                    <td>{b.Pickup_Location__c}</td>
+                                    <td class="font-bold text-green">{b.formattedAmount}</td>
+                                    <td>
+                                        <span class={b.statusBadgeClass}>{b.Status__c}</span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <template if:false={hasBookings}>
+                <div class="empty-state">
+                    <lightning-icon icon-name="utility:event" size="large"></lightning-icon>
+                    <p>No bookings found yet. Click <strong>"New Booking"</strong> to create your first reservation!</p>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

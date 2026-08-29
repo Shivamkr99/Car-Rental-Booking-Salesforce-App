@@ -1,0 +1,147 @@
+<template>
+    <div class="search-container">
+        <!-- ========================= -->
+        <!-- SEARCH HEADER             -->
+        <!-- ========================= -->
+        <div class="search-header">
+            <h2 class="search-title">
+                <lightning-icon icon-name="utility:search" size="small" class="title-icon"></lightning-icon>
+                Find Available Cars
+            </h2>
+            <p class="search-subtitle">Search by location, dates, and car type</p>
+        </div>
+
+        <!-- ========================= -->
+        <!-- SEARCH FILTERS            -->
+        <!-- ========================= -->
+        <div class="filters-grid">
+            <div class="filter-item">
+                <lightning-combobox
+                    name="location"
+                    label="Pickup Location"
+                    value={selectedLocation}
+                    placeholder="All Locations"
+                    options={locationOptions}
+                    onchange={handleLocationChange}>
+                </lightning-combobox>
+            </div>
+            <div class="filter-item">
+                <lightning-input
+                    type="date"
+                    label="Pickup Date"
+                    value={startDate}
+                    onchange={handleStartDateChange}>
+                </lightning-input>
+            </div>
+            <div class="filter-item">
+                <lightning-input
+                    type="date"
+                    label="Return Date"
+                    value={endDate}
+                    onchange={handleEndDateChange}>
+                </lightning-input>
+            </div>
+            <div class="filter-item">
+                <lightning-combobox
+                    name="carType"
+                    label="Car Type"
+                    value={selectedCarType}
+                    placeholder="All Types"
+                    options={carTypeOptions}
+                    onchange={handleCarTypeChange}>
+                </lightning-combobox>
+            </div>
+            <div class="filter-item filter-action">
+                <lightning-button
+                    label="Search"
+                    variant="brand"
+                    icon-name="utility:search"
+                    onclick={handleSearch}
+                    class="search-btn">
+                </lightning-button>
+                <lightning-button
+                    label="Clear"
+                    variant="neutral"
+                    icon-name="utility:clear"
+                    onclick={handleClear}
+                    class="clear-btn">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- ========================= -->
+        <!-- RESULTS                   -->
+        <!-- ========================= -->
+        <template if:true={isLoading}>
+            <div class="loading-wrapper">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={hasResults}>
+            <div class="results-header">
+                <p class="results-count">{resultCount} car(s) available</p>
+            </div>
+            <div class="car-cards-grid">
+                <template for:each={searchResults} for:item="car">
+                    <div key={car.Id} class="car-card">
+                        <!-- Car Image -->
+                        <div class="car-image-wrapper">
+                            <template if:true={car.Car_Image_URL__c}>
+                                <img src={car.Car_Image_URL__c} alt={car.carDisplayName} class="car-image" />
+                            </template>
+                            <template if:false={car.Car_Image_URL__c}>
+                                <div class="car-image-placeholder">
+                                    <lightning-icon icon-name="standard:vehicle" size="large"></lightning-icon>
+                                </div>
+                            </template>
+                            <span class="car-type-badge">{car.Car_Type__c}</span>
+                        </div>
+
+                        <!-- Car Details -->
+                        <div class="car-details">
+                            <h3 class="car-name">{car.carDisplayName}</h3>
+                            <div class="car-specs">
+                                <span class="spec-item">
+                                    <lightning-icon icon-name="utility:location" size="xx-small"></lightning-icon>
+                                    {car.Location__c}
+                                </span>
+                                <span class="spec-item">
+                                    <lightning-icon icon-name="utility:settings" size="xx-small"></lightning-icon>
+                                    {car.Transmission__c}
+                                </span>
+                                <span class="spec-item">
+                                    <lightning-icon icon-name="utility:filter" size="xx-small"></lightning-icon>
+                                    {car.Fuel_Type__c}
+                                </span>
+                                <span class="spec-item">
+                                    <lightning-icon icon-name="utility:groups" size="xx-small"></lightning-icon>
+                                    {car.Seats__c} Seats
+                                </span>
+                            </div>
+                            <div class="car-price-row">
+                                <span class="car-price">{car.formattedRate}</span>
+                                <span class="price-unit">/ day</span>
+                            </div>
+                            <lightning-button
+                                label="Book Now"
+                                variant="brand"
+                                icon-name="utility:add"
+                                onclick={handleBookNow}
+                                data-car-id={car.Id}
+                                class="book-btn">
+                            </lightning-button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={noResults}>
+            <div class="empty-results">
+                <lightning-icon icon-name="utility:warning" size="large"></lightning-icon>
+                <p>No cars available for the selected criteria. Try adjusting your search filters.</p>
+            </div>
+        </template>
+    </div>
+</template>
